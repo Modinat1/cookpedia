@@ -1,12 +1,20 @@
 import 'package:flutter/material.dart';
 
+/// ProfileScreen is a [StatelessWidget] because it only displays
+/// content passed in from outside — it has no state that changes over time.
+/// StatelessWidgets are simpler and more performant for read-only UI.
 class ProfileScreen extends StatelessWidget {
-  const ProfileScreen({super.key});
+  // Name and email are passed in via the constructor from MainScreen,
+  // which in turn received them from either the Login or Register screen.
+  final String name;
+  final String email;
+
+  const ProfileScreen({super.key, required this.name, required this.email});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
+      backgroundColor: const Color(0xFFF8F9FA), // Light grey background
       body: SafeArea(
         child: SingleChildScrollView(
           // SingleChildScrollView prevents overflow on smaller screens
@@ -14,13 +22,13 @@ class ProfileScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Top Navigation Bar
+              // ── Top Navigation Bar ─────────────────────────────────
               _buildTopBar(),
 
               // Vertical spacing
               const SizedBox(height: 16),
 
-              // Profile Info Section
+              // ── Profile Info Section ───────────────────────────────
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: _buildProfileInfo(),
@@ -28,7 +36,9 @@ class ProfileScreen extends StatelessWidget {
 
               const SizedBox(height: 12),
 
-              // Bio Section
+              // ── Bio Section ────────────────────────────────────────
+              // Now displays the name and email passed from
+              // Login/Register instead of hardcoded values.
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: _buildBio(),
@@ -36,7 +46,7 @@ class ProfileScreen extends StatelessWidget {
 
               const SizedBox(height: 20),
 
-              // Tab Bar
+              // ── Tab Bar (Recipe / Videos / Tag) ────────────────────
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: _buildTabBar(),
@@ -44,7 +54,7 @@ class ProfileScreen extends StatelessWidget {
 
               const SizedBox(height: 16),
 
-              // Recipe Cards
+              // ── Recipe Cards ───────────────────────────────────────
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: _buildRecipeCard(
@@ -80,7 +90,10 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  // Widget Builder
+  // ── Widget Builder Methods ─────────────────────────────────────────────────
+
+  /// Builds the top app bar with title and menu icon.
+  /// Uses a [Row] to place title and icon on opposite ends.
   Widget _buildTopBar() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
@@ -104,13 +117,14 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  /// Profile header: avatar + stats (Recipe, Followers, Following).
+  /// Builds the profile header: avatar + stats (Recipe, Followers, Following).
   /// Uses [Row] and [Column] to arrange items side by side.
   Widget _buildProfileInfo() {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        // Profile Avatar
+        // ── Profile Avatar ───────────────────────────────────────────
+        // CircleAvatar displays the profile photo in a circle
         CircleAvatar(
           radius: 42,
           backgroundColor: const Color(0xFFE0E0E0), // Fallback grey
@@ -125,7 +139,8 @@ class ProfileScreen extends StatelessWidget {
         // Spacing between avatar and stats
         const SizedBox(width: 20),
 
-        // Stats Row
+        // ── Stats Row ────────────────────────────────────────────────
+        // Expanded makes the stats fill the remaining horizontal space
         Expanded(
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -156,7 +171,7 @@ class ProfileScreen extends StatelessWidget {
   Widget _buildStatColumn(String label, String value) {
     return Column(
       children: [
-        // Label ("Recipe", "Followers")
+        // Label (e.g. "Recipe", "Followers")
         Text(
           label,
           style: TextStyle(
@@ -182,14 +197,18 @@ class ProfileScreen extends StatelessWidget {
   }
 
   /// Builds the name + bio section below the profile header.
+  /// Displays the [name] and [email] passed into ProfileScreen's constructor
+  /// — these come from whichever screen the user authenticated through
+  /// (Register passes both name + email; Login passes only email).
   Widget _buildBio() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Full name
-        const Text(
-          'Modinat Adesola',
-          style: TextStyle(
+        // Full name — falls back to a placeholder if empty (e.g. user
+        // came from Login, which doesn't collect a name).
+        Text(
+          name.isNotEmpty ? name : 'Guest Chef',
+          style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
             color: Color(0xFF1A1A2E),
@@ -206,18 +225,27 @@ class ProfileScreen extends StatelessWidget {
 
         const SizedBox(height: 8),
 
-        // Bio text with emoji accents
-        RichText(
-          text: TextSpan(
-            style: TextStyle(
-              fontSize: 13,
-              color: Colors.grey.shade700,
-              height: 1.5,
+        // Email passed in from Login/Register, shown with an icon
+        Row(
+          children: [
+            Icon(Icons.email_outlined, size: 14, color: Colors.grey.shade600),
+            const SizedBox(width: 6),
+            Text(
+              email.isNotEmpty ? email : 'No email provided',
+              style: TextStyle(fontSize: 13, color: Colors.grey.shade700),
             ),
-            children: const [
-              TextSpan(text: 'Private Chef\n'),
-              TextSpan(text: 'Passionate about food and life 🍔🍕🌮📚'),
-            ],
+          ],
+        ),
+
+        const SizedBox(height: 8),
+
+        // Bio text with emoji accents
+        Text(
+          'Passionate about food and life 🍔🍕🌮📚',
+          style: TextStyle(
+            fontSize: 13,
+            color: Colors.grey.shade700,
+            height: 1.5,
           ),
         ),
 
@@ -241,7 +269,7 @@ class ProfileScreen extends StatelessWidget {
   Widget _buildTabBar() {
     return Row(
       children: [
-        // Active Tab: Recipe
+        // ── Active Tab: Recipe ────────────────────────────────────────
         // Container with green background and rounded corners
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 10),
@@ -261,7 +289,7 @@ class ProfileScreen extends StatelessWidget {
 
         const SizedBox(width: 16),
 
-        // Inactive Tab: Videos
+        // ── Inactive Tab: Videos ──────────────────────────────────────
         const Text(
           'Videos',
           style: TextStyle(
@@ -273,7 +301,7 @@ class ProfileScreen extends StatelessWidget {
 
         const SizedBox(width: 16),
 
-        // Inactive Tab: Tag
+        // ── Inactive Tab: Tag ─────────────────────────────────────────
         const Text(
           'Tag',
           style: TextStyle(
@@ -318,7 +346,7 @@ class ProfileScreen extends StatelessWidget {
       child: Stack(
         fit: StackFit.expand,
         children: [
-          // Food Image
+          // ── Food Image ─────────────────────────────────────────────
           // Image.network loads a photo from the internet
           Image.network(
             imageUrl,
@@ -336,7 +364,7 @@ class ProfileScreen extends StatelessWidget {
             },
           ),
 
-          // Dark Gradient Overlay
+          // ── Dark Gradient Overlay ──────────────────────────────────
           // DecoratedBox adds a gradient so text is readable over the photo
           DecoratedBox(
             decoration: BoxDecoration(
@@ -348,7 +376,7 @@ class ProfileScreen extends StatelessWidget {
             ),
           ),
 
-          // Rating Badge (top-right)
+          // ── Rating Badge (top-right) ───────────────────────────────
           Positioned(
             top: 10,
             right: 10,
@@ -415,7 +443,7 @@ class ProfileScreen extends StatelessWidget {
                   ),
                 ),
 
-                // Duration Badge
+                // ── Duration Badge ──────────────────────────────────
                 Row(
                   children: [
                     const Icon(
@@ -433,7 +461,7 @@ class ProfileScreen extends StatelessWidget {
 
                 const SizedBox(width: 10),
 
-                // Bookmark Icon Button
+                // ── Bookmark Icon Button ─────────────────────────────
                 Container(
                   padding: const EdgeInsets.all(6),
                   decoration: BoxDecoration(

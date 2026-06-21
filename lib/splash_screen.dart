@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
-import 'profile_screen.dart';
+import 'login_screen.dart';
+import 'app_logo.dart';
 
 /// SplashScreen is a [StatefulWidget] because it manages animations
 /// and a timer that triggers navigation after 3 seconds.
@@ -11,30 +12,27 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-/// _SplashScreenState uses TWO AnimationControllers:
-///   1. _entryController  — one-shot fade + scale-in for the logo on load
-///   2. _pulseController  — repeating scale pulse on the logo
 class _SplashScreenState extends State<SplashScreen>
     with TickerProviderStateMixin {
-  // ── Entry animation (fade + scale in)
+  // ── Entry animation (fade + scale in) ──────────────────
   late AnimationController _entryController;
   late Animation<double> _fadeAnimation;
   late Animation<double> _entryScaleAnimation;
 
-  // ── Pulse animation (repeating breathe effect on the logo)
+  // ── Pulse animation (repeating breathe effect on the logo) ────────────────
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
 
-  // ── Pulse ring animation (expanding ring that fades out)
+  // ── Pulse ring animation (expanding ring that fades out) ──────────────────
   late Animation<double> _ringScaleAnimation;
   late Animation<double> _ringOpacityAnimation;
 
-  /// initState() sets up both animation controllers and starts the nav timer.
+  /// initState sets up both animation controllers and starts the nav timer.
   @override
   void initState() {
     super.initState();
 
-    // 1. Entry animation: 900ms, plays once
+    // ── 1. Entry animation: 900ms, plays once ────────────────────────────────
     _entryController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 900),
@@ -49,7 +47,7 @@ class _SplashScreenState extends State<SplashScreen>
       CurvedAnimation(parent: _entryController, curve: Curves.easeOutBack),
     );
 
-    // 2. Pulse animation: 1.4s per cycle, repeats forever
+    // ── 2. Pulse animation: 1.4s per cycle, repeats forever ─────────────────
     _pulseController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1400),
@@ -96,7 +94,7 @@ class _SplashScreenState extends State<SplashScreen>
         context,
         PageRouteBuilder(
           pageBuilder: (context, animation, secondaryAnimation) =>
-              const ProfileScreen(),
+              const LoginScreen(),
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             return FadeTransition(opacity: animation, child: child);
           },
@@ -106,7 +104,7 @@ class _SplashScreenState extends State<SplashScreen>
     });
   }
 
-  /// dispose() clean up BOTH controllers to prevent memory leaks.
+  /// dispose() must clean up BOTH controllers to prevent memory leaks.
   @override
   void dispose() {
     _entryController.dispose();
@@ -124,21 +122,18 @@ class _SplashScreenState extends State<SplashScreen>
           children: [
             const Spacer(),
 
-            // Animated logo and title
-            // AnimatedBuilder listens to BOTH controllers and rebuilds when
-            // either changes value.
+            // ── Animated logo + title ──────────────────────────────────────
             AnimatedBuilder(
               animation: Listenable.merge([_entryController, _pulseController]),
               builder: (context, child) {
                 return FadeTransition(
-                  opacity: _fadeAnimation, // entry fade-in
+                  opacity: _fadeAnimation,
                   child: ScaleTransition(
-                    scale: _entryScaleAnimation, // entry scale-in
+                    scale: _entryScaleAnimation,
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        // Pulsating logo wrapper
-                        // Stack layers: expanding ring  →  pulsing logo box
+                        // ── Pulsating logo wrapper ────────────────────────
                         SizedBox(
                           width: 180,
                           height: 180,
@@ -183,14 +178,14 @@ class _SplashScreenState extends State<SplashScreen>
                                 ),
                               ),
 
-                              // Logo box
+                              // Logo — breathes with _pulseAnimation
+                              // Network image wrapped in a pulsing scale transform
                               Transform.scale(
                                 scale: _pulseAnimation.value,
                                 child: Container(
                                   width: 110,
                                   height: 110,
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFFF05A5A),
                                     borderRadius: BorderRadius.circular(20),
                                     boxShadow: [
                                       BoxShadow(
@@ -203,32 +198,8 @@ class _SplashScreenState extends State<SplashScreen>
                                       ),
                                     ],
                                   ),
-                                  child: Stack(
-                                    alignment: Alignment.center,
-                                    children: [
-                                      const Icon(
-                                        Icons.restaurant,
-                                        size: 52,
-                                        color: Colors.white,
-                                      ),
-                                      Positioned(
-                                        top: 6,
-                                        right: 6,
-                                        child: Container(
-                                          padding: const EdgeInsets.all(4),
-                                          decoration: const BoxDecoration(
-                                            color: Color(0xFF4CAF50),
-                                            shape: BoxShape.circle,
-                                          ),
-                                          child: const Icon(
-                                            Icons.eco,
-                                            size: 16,
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
+                                  // AppLogo fetches the logo from a network URL
+                                  child: const AppLogo(size: 110),
                                 ),
                               ),
                             ],
